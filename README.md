@@ -1,4 +1,5 @@
 # Progress Bar for the GNOME Media Notification
+*This is a debug branch with a bunch of debug logs just for my convenience, not to be used.*
 
 ![image, listen to hot air balloon btw](pics/image.png)
 
