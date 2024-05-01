@@ -1,0 +1,8 @@
+{
+    "name": "Media Progress",
+    "description": "Progress bar for the media player",
+    "shell-version": [ "46" ],
+    "url": "",
+    "uuid": "media-progress@krypion17",
+    "version": 1.0
+}

@@ -1,0 +1,17 @@
+/* Add your custom extension styling here */
+
+.progress-bar {
+    height: 4px;
+    -barlevel-height: 4px;
+    -barlevel-active-background-color: #fff;
+    -slider-handle-radius: 2px;
+    margin: 5px 15px 10px;
+    padding: 0;
+}
+
+.progress-bar:hover {
+    color: white;
+    -slider-handle-radius: 5px;
+    height: 14px;
+    margin: 0 15px 5px;
+}
