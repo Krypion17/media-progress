@@ -3,9 +3,14 @@
 .progress-bar {
     -barlevel-height: 4px;
     -barlevel-active-background-color: #fff;
+    color: black;
     -slider-handle-radius: 0px;
     margin: 5px 5px 10px;
     padding: 0;
+}
+
+.progress-bar:nth-child(1) {
+    display: none;
 }
 
 .progress-bar:hover {

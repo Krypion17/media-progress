@@ -1,6 +1,8 @@
 import Gio from "gi://Gio";
 import GLib from "gi://GLib";
 import GObject from "gi://GObject";
+import St from 'gi://St';
+
 
 import {Slider} from 'resource:///org/gnome/shell/ui/slider.js';
 
@@ -25,7 +27,13 @@ export class ProgressBarManager extends Slider {
 
 
         this._mediaSection = mediaSection;
-
+        this.timestamp1 = new St.Label({
+            style_class: "progressbar-timestamp"
+        });
+        this.timestamp1.set_text("0:00");
+        this.timestamp2 = new St.Label({
+            style_class: "progressbar-timestamp"
+        });
     }
 
     _addProgress(name, owners, newOwner, oldOwner) {
@@ -43,7 +51,6 @@ export class ProgressBarManager extends Slider {
                     // log("No length, no position expected");
                     position = false;
                 }
-                playerProxy = null;
 
                 if (!position)
                     return;
@@ -56,7 +63,14 @@ export class ProgressBarManager extends Slider {
                         return;
                 }
                 let progressBar = new ProgressBar(0, this, name);
-                i.get_child().add_child(progressBar);
+                let box = new St.BoxLayout();
+                let length = playerProxy.Metadata["mpris:length"].deepUnpack() / 60000000;
+                playerProxy = null;
+                this.timestamp2.set_text(`${Math.floor(length)}:${Math.floor((length - Math.floor(length))*60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})}`);
+                box.add_child(this.timestamp1);
+                box.add_child(progressBar);
+                box.add_child(this.timestamp2);
+                i.get_child().add_child(box);
 
                 i._player.connect('closed', () => {
                     if (timeout)
@@ -101,6 +115,7 @@ export class ProgressBar extends Slider {
 
         this._busName = busName;
         this.manager = manager;
+        this.timestamp = manager.timestamp1;
         this.add_style_class_name('progress-bar');
         this.track_hover = true;
 
@@ -115,13 +130,15 @@ export class ProgressBar extends Slider {
             if (this._dragging || this._playerProxy.PlaybackStatus !== "Playing")
                 return;
             if (!this) {
-                log("bru")
+                log("bru");
                 clearInterval(timeout);
                 return;
             }
-            const position = this.getPosition();
+            let position = this.getPosition();
             log(position);
             this.value = position / this._length;
+            position = position / 60000000;
+            this.timestamp.set_text(`${Math.floor(position)}:${Math.floor((position - Math.floor(position))*60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})}`);
         }, 1000);
 
         this.connect("drag-end", () => {

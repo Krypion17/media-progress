@@ -22,7 +22,7 @@ export default class extension extends Extension {
             clearInterval(timeout);
             // this.media_section._messages.remove_actor(progressBar).catch(() => log("not removed"));
             for (let j of i.get_child().get_children()) {
-                if (j instanceof ProgressBar) {
+                if (j.get_children()[1] instanceof ProgressBar) {
                     i.get_child().remove_child(j);
                     j.destroy();
                 }
