@@ -1,8 +1,8 @@
 {
     "name": "Media Progress",
-    "description": "Progress bar for the media player",
+    "description": "Progress Bar for the GNOME Media Notification",
     "shell-version": [ "46" ],
-    "url": "",
+    "url": "https://github.com/Krypion17/media-progress",
     "uuid": "media-progress@krypion17",
     "version": 1.0
 }
