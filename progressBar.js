@@ -25,16 +25,9 @@ export class ProgressBarManager extends Slider {
 
         this._mediaSection = mediaSection;
 
-        this.timestamp1 = new St.Label({
-            style_class: "progressbar-timestamp"
-        });
-        this.timestamp1.set_text("0:00");
-
-        this.timestamp2 = new St.Label({
-            style_class: "progressbar-timestamp"
-        });
-
+        
         this.signals = [];
+        this.bars = {};
     }
 
     _addProgress(name, owners, newOwner, oldOwner) {
@@ -62,15 +55,25 @@ export class ProgressBarManager extends Slider {
                     if (j instanceof ProgressBar)
                         return;
                 }
-                let progressBar = new ProgressBar(0, this, name);
+                let timestamp1 = new St.Label({
+                    style_class: "progressbar-timestamp"
+                });
+                timestamp1.set_text("0:00");
+
+                let timestamp2 = new St.Label({
+                    style_class: "progressbar-timestamp"
+                });
+
+                let progressBar = new ProgressBar(0, this, name, [timestamp1, timestamp2]);
                 let box = new St.BoxLayout();
                 let length = playerProxy.Metadata["mpris:length"].deepUnpack() / 60000000;
                 playerProxy = null;
-                this.timestamp2.set_text(`${Math.floor(length)}:${Math.floor((length - Math.floor(length))*60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})}`);
-                box.add_child(this.timestamp1);
+                timestamp2.set_text(`${Math.floor(length)}:${Math.floor((length - Math.floor(length))*60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})}`);
+                box.add_child(timestamp1);
                 box.add_child(progressBar);
-                box.add_child(this.timestamp2);
+                box.add_child(timestamp2);
                 i.get_child().add_child(box);
+                this.bars[box] = progressBar;
 
                 this.signals.push(i._player.connect('closed', () => {
                     if (timeout)
@@ -99,31 +102,27 @@ export class ProgressBarManager extends Slider {
     }
 
     destroy() {
+        super.destroy();
         this.signals.map((i) => {
             this.disconnect(i);
         });
 
         clearTimeout(this.timeout);
 
-        for (let i of this._mediaSection._messages) {
-            for (let j of i.get_child().get_children()) {
-                if (j.get_children()[1] instanceof ProgressBar) {
-                    i.get_child().remove_child(j);
-                    j.get_children()[1]?.destroy();
-                    j?.destroy();
-                }
-            }
+        for (let box in bars) {
+            bars[box].destroy();
+            box.destroy();
         }
     }
 }
 
 export class ProgressBar extends Slider {
-    _init(value, manager, busName) {
+    _init(value, manager, busName, timestamps) {
         super._init(value);
 
         this._busName = busName;
         this.manager = manager;
-        this.timestamp = manager.timestamp1;
+        this.timestamps = timestamps;
         this.add_style_class_name('progress-bar');
         this.track_hover = true;
 
@@ -147,7 +146,7 @@ export class ProgressBar extends Slider {
             let position = this.getPosition();
             this.value = position / this._length;
             position = position / 60000000;
-            this.timestamp.set_text(`${Math.floor(position)}:${Math.floor((position - Math.floor(position))*60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})}`);
+            this.timestamps[0].set_text(`${Math.floor(position)}:${Math.floor((position - Math.floor(position))*60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})}`);
         }, 1000);
 
         this.signals.push(this.connect("drag-end", () => {
@@ -196,10 +195,14 @@ export class ProgressBar extends Slider {
     }
 
     destroy() {
+        super.destroy()
         this.signals.map((i) => {
             this.disconnect(i);
         });
         clearInterval(timeout);
+        this._playerProxy = null;
+        this.timestamps[0].destroy();
+        this.timestamps[1].destroy();
     }
 }
 
