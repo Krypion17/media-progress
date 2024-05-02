@@ -15,16 +15,6 @@ export default class mediaProgress extends Extension {
     disable() {
         this.progressBarManager?.destroy();
         this.progressBarManager = null;
-
-        for (let i of this.media_section._messages) {
-            for (let j of i.get_child().get_children()) {
-                if (j.get_children()[1] instanceof ProgressBar) {
-                    i.get_child().remove_child(j);
-                    j.get_children()[1]?.destroy();
-                    j?.destroy();
-                }
-            }
-        }
         this.media_section = null;
     }
 }

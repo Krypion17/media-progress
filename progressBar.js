@@ -102,7 +102,18 @@ export class ProgressBarManager extends Slider {
         this.signals.map((i) => {
             this.disconnect(i);
         });
+
         clearTimeout(this.timeout);
+
+        for (let i of this._mediaSection._messages) {
+            for (let j of i.get_child().get_children()) {
+                if (j.get_children()[1] instanceof ProgressBar) {
+                    i.get_child().remove_child(j);
+                    j.get_children()[1]?.destroy();
+                    j?.destroy();
+                }
+            }
+        }
     }
 }
 
