@@ -109,8 +109,8 @@ export class ProgressBarManager extends Slider {
 
         clearTimeout(this.timeout);
 
-        for (let box in bars) {
-            bars[box].destroy();
+        for (let box in this.bars) {
+            this.bars[box].destroy();
             box.destroy();
         }
     }
