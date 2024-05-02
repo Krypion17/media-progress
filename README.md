@@ -4,6 +4,7 @@
 
 ## Installation
 Get it from the GNOME extensions website
+
 [<img height=100 src="https://github.com/andyholmes/gnome-shell-extensions-badge/raw/master/get-it-on-ego.svg">](https://extensions.gnome.org/extension/6940/media-progress/)
 
 Or do it the quick and dirty way
