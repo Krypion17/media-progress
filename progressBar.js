@@ -8,17 +8,14 @@ import {Slider} from 'resource:///org/gnome/shell/ui/slider.js';
 
 import { loadInterfaceXML } from 'resource:///org/gnome/shell/misc/fileUtils.js';
 
-const MprisPlayerIface = loadInterfaceXML('org.mpris.MediaPlayer2.Player');
-const MprisPlayerProxy = Gio.DBusProxy.makeProxyWrapper(MprisPlayerIface);
-
-const DBusIface = loadInterfaceXML('org.freedesktop.DBus');
-const DBusProxy = Gio.DBusProxy.makeProxyWrapper(DBusIface);
-
-export var timeout;
+let timeout;
 
 export class ProgressBarManager extends Slider {
     _init(mediaSection) {
         super._init(0);
+        
+        const DBusIface = loadInterfaceXML('org.freedesktop.DBus');
+        const DBusProxy = Gio.DBusProxy.makeProxyWrapper(DBusIface);
 
         this._dbusProxy = new DBusProxy(Gio.DBus.session, 
                              'org.freedesktop.DBus',
@@ -47,6 +44,10 @@ export class ProgressBarManager extends Slider {
                     return;
                     
                 let position = true;
+
+                const MprisPlayerIface = loadInterfaceXML('org.mpris.MediaPlayer2.Player');
+                const MprisPlayerProxy = Gio.DBusProxy.makeProxyWrapper(MprisPlayerIface);
+
                 let playerProxy = new MprisPlayerProxy(Gio.DBus.session, name, '/org/mpris/MediaPlayer2');
                 try {
                     playerProxy.Metadata["mpris:length"].deepUnpack();
@@ -91,10 +92,17 @@ export class ProgressBarManager extends Slider {
             if (!name.startsWith('org.mpris.MediaPlayer2.'))
                 return;
     
-            setTimeout(() => {
+            this.timeout = setTimeout(() => {
                 this._addProgress(name, true, newOwner, oldOwner);
             }, 500);
         }));
+    }
+
+    destroy() {
+        this.signals.map((i) => {
+            this.disconnect(i);
+        });
+        clearTimeout(this.timeout);
     }
 }
 
@@ -107,6 +115,11 @@ export class ProgressBar extends Slider {
         this.timestamp = manager.timestamp1;
         this.add_style_class_name('progress-bar');
         this.track_hover = true;
+
+        this.signals = [];
+
+        const MprisPlayerIface = loadInterfaceXML('org.mpris.MediaPlayer2.Player');
+        const MprisPlayerProxy = Gio.DBusProxy.makeProxyWrapper(MprisPlayerIface);
 
         this._playerProxy = new MprisPlayerProxy(Gio.DBus.session, this._busName, '/org/mpris/MediaPlayer2', this._onPlayerProxyReady.bind(this));
 
@@ -126,11 +139,11 @@ export class ProgressBar extends Slider {
             this.timestamp.set_text(`${Math.floor(position)}:${Math.floor((position - Math.floor(position))*60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})}`);
         }, 1000);
 
-        this.signals = [this.connect("drag-end", () => {
+        this.signals.push(this.connect("drag-end", () => {
             if (this._dragging)
                 return;
             this.setPosition(this.value * this._length);
-        })];
+        }));
     }
 
     _updateInfo() {
@@ -169,6 +182,13 @@ export class ProgressBar extends Slider {
     async _onPlayerProxyReady() {
         this._updateInfo();
         this.signals.push(this._playerProxy.connectObject('g-properties-changed', () => this._updateInfo(), this));
+    }
+
+    destroy() {
+        this.signals.map((i) => {
+            this.disconnect(i);
+        });
+        clearInterval(timeout);
     }
 }
 

@@ -1,8 +1,8 @@
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
-import { ProgressBarManager as ProgressBarManager, timeout as timeout, ProgressBar as ProgressBar } from "./progressBar.js";
+import { ProgressBarManager as ProgressBarManager, ProgressBar as ProgressBar } from "./progressBar.js";
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 
-export default class extension extends Extension {
+export default class mediaProgress extends Extension {
     constructor(metadata) {
         super(metadata);
     }
@@ -13,27 +13,18 @@ export default class extension extends Extension {
     }
 
     disable() {
-        if (this.media_section._messages.length == 0)
-            return;
-
-        for (let i of this.progressBarManager.signals) {
-            this.progressBarManager.disconnect(i);
-        }
+        this.progressBarManager?.destroy();
+        this.progressBarManager = null;
 
         for (let i of this.media_section._messages) {
-            clearInterval(timeout);
             for (let j of i.get_child().get_children()) {
                 if (j.get_children()[1] instanceof ProgressBar) {
                     i.get_child().remove_child(j);
-                    for (let k of j.get_children()[1].signals) {
-                        j.get_children()[1].disconnect(k);
-                    }
-                    j.get_children()[1].destroy();
-                    j.destroy();
+                    j.get_children()[1]?.destroy();
+                    j?.destroy();
                 }
             }
         }
-        this.progressBarManager = null;
         this.media_section = null;
     }
 }
