@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="10mm"
+   height="10mm"
+   viewBox="0 0 10 10"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.3.2 (091e20ef0f, 2023-11-25)"
+   sodipodi:docname="icon.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#d1d1d1"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="false"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="false"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showborder="false"
+     labelstyle="default"
+     inkscape:zoom="1"
+     inkscape:cx="34"
+     inkscape:cy="1.5"
+     inkscape:window-width="1920"
+     inkscape:window-height="1011"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g8570" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       style="fill:none"
+       transform="matrix(0.26458333,0,0,0.26458333,28.045833,88.900009)"
+       inkscape:label="audio music tracks notes"
+       id="g8570">
+      <title
+         id="title2787">music-note</title>
+      <rect
+         style="fill:#333333;fill-opacity:1;stroke:none;stroke-width:14.1883;stroke-linecap:round;stroke-linejoin:round"
+         id="rect1"
+         width="37.795277"
+         height="37.795277"
+         x="-106"
+         y="-336.00003"
+         ry="0"
+         rx="0" />
+      <rect
+         y="-325.10239"
+         x="-94.602425"
+         height="16"
+         width="16"
+         id="rect8574"
+         style="fill:none" />
+      <path
+         style="fill:#cccccc;fill-opacity:1;stroke-width:1.49798"
+         d="m -90.847445,-327.58825 v 11.00077 c -0.67783,-0.3167 -1.45259,-0.51493 -2.24696,-0.51493 -2.87784,0 -5.24292,2.36508 -5.24292,5.24292 0,2.87784 2.36508,5.24292 5.24292,5.24292 2.86161,0 5.21642,-2.34024 5.24292,-5.19611 1.5e-4,-0.0162 0,-0.0306 0,-0.0468 v -11.23483 h 8.98786 v 6.50684 c -0.67783,-0.3167 -1.45259,-0.51493 -2.24697,-0.51493 -2.87783,0 -5.24292,2.36508 -5.24292,5.24292 0,2.87784 2.36509,5.24292 5.24292,5.24292 2.84541,0 5.19033,-2.31544 5.24292,-5.1493 6e-4,-0.0323 0,-0.0612 0,-0.0936 v -15.72876 z"
+         id="path8576" />
+    </g>
+  </g>
+</svg>

@@ -73,11 +73,12 @@ export class ProgressBarManager extends Slider {
                 box.add_child(progressBar);
                 box.add_child(timestamp2);
                 i.get_child().add_child(box);
-                this.bars[box] = progressBar;
+                this.bars[name] = progressBar;
 
                 this.signals.push(i._player.connect('closed', () => {
                     if (timeout)
                         clearInterval(timeout);
+                    this.bars[name].destroy();
                 }));
             }
         }
@@ -103,16 +104,16 @@ export class ProgressBarManager extends Slider {
 
     destroy() {
         super.destroy();
+        
+        clearTimeout(this.timeout);
+
+        for (let i in this.bars) {
+            this.bars[i].destroy();
+        }
+
         this.signals.map((i) => {
             this.disconnect(i);
         });
-
-        clearTimeout(this.timeout);
-
-        for (let box in this.bars) {
-            this.bars[box].destroy();
-            box.destroy();
-        }
     }
 }
 
