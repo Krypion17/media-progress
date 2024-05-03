@@ -15,4 +15,5 @@ git clone https://github.com/Krypion17/media-progress && mv media-progress media
 Then re-login and enable from the extension app, if not enabled.
 
 ## TODO
-- Maybe a settings menu to disable timestamps.
+- Make an install script
+- Maybe a settings menu to disable timestamps
