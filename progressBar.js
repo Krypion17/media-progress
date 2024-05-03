@@ -164,7 +164,7 @@ export class ProgressBar extends Slider {
         this._length = this._playerProxy.Metadata["mpris:length"].deepUnpack();
     }
 
-    getPosition() {
+    getPosition() {;
         return this._playerProxy.get_connection().call_sync(
             this._busName,
             "/org/mpris/MediaPlayer2",
@@ -204,6 +204,10 @@ export class ProgressBar extends Slider {
         } else {
             this.remove_style_class_name('progress-bar-light');
             this.add_style_class_name('progress-bar');
+        }
+        if (GLib.spawn_command_line_sync("cat /etc/os-release")[1].toString().split("\n")[0].includes("Ubuntu")) {
+            this.remove_style_class_name('progress-bar');
+            this.add_style_class_name('progress-bar-light');
         }
     }
 
