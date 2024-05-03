@@ -78,7 +78,7 @@ export class ProgressBarManager extends Slider {
                 this.signals.push(i._player.connect('closed', () => {
                     if (timeout)
                         clearInterval(timeout);
-                    this.bars[name].destroy();
+                    progressBar.destroy();
                 }));
             }
         }
@@ -124,7 +124,8 @@ export class ProgressBar extends Slider {
         this._busName = busName;
         this.manager = manager;
         this.timestamps = timestamps;
-        this.add_style_class_name('progress-bar');
+        this._updateSettings();
+        this.updateSignal = St.Settings.get().connect('notify', () => this._updateSettings());
         this.track_hover = true;
 
         this.signals = [];
@@ -145,6 +146,7 @@ export class ProgressBar extends Slider {
                 return;
             }
             let position = this.getPosition();
+
             this.value = position / this._length;
             position = position / 60000000;
             this.timestamps[0].set_text(`${Math.floor(position)}:${Math.floor((position - Math.floor(position))*60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})}`);
@@ -195,11 +197,22 @@ export class ProgressBar extends Slider {
         this.signals.push(this._playerProxy.connectObject('g-properties-changed', () => this._updateInfo(), this));
     }
 
+    _updateSettings() {
+        if (St.Settings.get().color_scheme == 2) {
+            this.remove_style_class_name('progress-bar');
+            this.add_style_class_name('progress-bar-light');
+        } else {
+            this.remove_style_class_name('progress-bar-light');
+            this.add_style_class_name('progress-bar');
+        }
+    }
+
     destroy() {
         super.destroy()
         this.signals.map((i) => {
             this.disconnect(i);
         });
+        St.Settings.get().disconnect(this.updateSignal);
         clearInterval(timeout);
         this._playerProxy = null;
         this.timestamps[0].destroy();
