@@ -162,6 +162,7 @@ export class ProgressBar extends Slider {
     _updateInfo() {
         this._trackId = this._playerProxy.Metadata["mpris:trackid"].deepUnpack();
         this._length = this._playerProxy.Metadata["mpris:length"].deepUnpack();
+        timestamps[1].set_text(`${Math.floor(this._length)}:${Math.floor((this._length - Math.floor(this._length))*60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})}`);
     }
 
     getPosition() {;
@@ -198,17 +199,17 @@ export class ProgressBar extends Slider {
     }
 
     _updateSettings() {
-        if (St.Settings.get().color_scheme == 2) {
+        if (St.Settings.get().color_scheme == 0 && GLib.get_os_info("NAME").includes("Ubuntu")) {
+            this.remove_style_class_name('progress-bar');
+            this.add_style_class_name('progress-bar-light');
+        } else if (St.Settings.get().color_scheme == 2) {
             this.remove_style_class_name('progress-bar');
             this.add_style_class_name('progress-bar-light');
         } else {
             this.remove_style_class_name('progress-bar-light');
             this.add_style_class_name('progress-bar');
         }
-        if (GLib.spawn_command_line_sync("cat /etc/os-release")[1].toString().split("\n")[0].includes("Ubuntu")) {
-            this.remove_style_class_name('progress-bar');
-            this.add_style_class_name('progress-bar-light');
-        }
+        
     }
 
     destroy() {
