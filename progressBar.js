@@ -162,7 +162,7 @@ export class ProgressBar extends Slider {
     _updateInfo() {
         this._trackId = this._playerProxy.Metadata["mpris:trackid"].deepUnpack();
         this._length = this._playerProxy.Metadata["mpris:length"].deepUnpack();
-        timestamps[1].set_text(`${Math.floor(this._length)}:${Math.floor((this._length - Math.floor(this._length))*60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})}`);
+        this.timestamps[1].set_text(`${Math.floor(this._length / 60000000)}:${Math.floor((this._length / 60000000 - Math.floor(this._length / 60000000))*60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})}`);
     }
 
     getPosition() {;
