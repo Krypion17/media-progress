@@ -1,12 +1,10 @@
-<div id="vscodium-logo" align="center">
+<div align="center">
     <br />
     <img src="pics/icon.svg" width="200"/>
     <h1>Media Progress</h1>
     <h3>Progress Bar for the GNOME Media Notification</h3>
+    <img src="pics/image.png">
 </div>
-
-
-![image, listen to hot air balloon btw](pics/image.png)
 
 ## Installation
 Get it from the GNOME extensions website
