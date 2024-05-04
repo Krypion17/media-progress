@@ -1,5 +1,10 @@
-<img height=50 src="pics/icon.svg" align="right">
-<h1>Progress Bar for the GNOME Media Notification</h1>
+<div id="vscodium-logo" align="center">
+    <br />
+    <img src="pics/icon.svg" width="200"/>
+    <h1>Media Progress</h1>
+    <h3>Progress Bar for the GNOME Media Notification</h3>
+</div>
+
 
 ![image, listen to hot air balloon btw](pics/image.png)
 
