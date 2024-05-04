@@ -1,5 +1,5 @@
 <img height=50 src="pics/icon.svg" align="right" style="margin:30px 40px 0 0">
-# Progress Bar for the GNOME Media Notification 
+<h1>Progress Bar for the GNOME Media Notification</h1> 
 
 ![image, listen to hot air balloon btw](pics/image.png)
 
