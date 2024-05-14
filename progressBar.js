@@ -103,6 +103,10 @@ export class ProgressBarManager extends Slider {
             this.signals.push(this._mediaSection._players.get(name).connect('changed', () => {
                 this._addProgress(name, true, newOwner, oldOwner);
             }));
+
+            this.timeout = setTimeout(() => {
+                this._addProgress(name, true, newOwner, oldOwner);
+            }, 500);
         }));
     }
 
