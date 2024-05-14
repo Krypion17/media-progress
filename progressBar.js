@@ -36,12 +36,20 @@ export class ProgressBarManager extends Slider {
                 if (owners && !newOwner && oldOwner)
                     return;
                     
+                try {
+                    if (i.get_child().get_last_child().get_child_at_index(1) instanceof ProgressBar) 
+                        return;
+                } catch {
+                    return;
+                }
+
                 let position = true;
 
                 const MprisPlayerIface = loadInterfaceXML('org.mpris.MediaPlayer2.Player');
                 const MprisPlayerProxy = Gio.DBusProxy.makeProxyWrapper(MprisPlayerIface);
 
                 let playerProxy = new MprisPlayerProxy(Gio.DBus.session, name, '/org/mpris/MediaPlayer2');
+                
                 try {
                     playerProxy.Metadata["mpris:length"].deepUnpack();
                 } catch (e) {
@@ -50,11 +58,7 @@ export class ProgressBarManager extends Slider {
 
                 if (!position)
                     return;
-    
-                for (let j of i.get_child().get_children()) {
-                    if (j instanceof ProgressBar)
-                        return;
-                }
+
                 let timestamp1 = new St.Label({
                     style_class: "progressbar-timestamp"
                 });
@@ -75,11 +79,12 @@ export class ProgressBarManager extends Slider {
                 i.get_child().add_child(box);
                 this.bars[name] = progressBar;
 
-                this.signals.push(i._player.connect('closed', () => {
+                this.signals.push(i._player.connect('closed', (() => {
                     if (timeout)
                         clearInterval(timeout);
-                    progressBar.destroy();
-                }));
+                    this.bars[name].destroy();
+                    delete this.bars[name]
+                })));
             }
         }
     }
@@ -95,25 +100,25 @@ export class ProgressBarManager extends Slider {
         this.signals.push(this._dbusProxy.connectSignal("NameOwnerChanged", (pproxy, sender, [name, oldOwner, newOwner]) => {
             if (!name.startsWith('org.mpris.MediaPlayer2.'))
                 return;
-    
-            this.timeout = setTimeout(() => {
+            this.signals.push(this._mediaSection._players.get(name).connect('changed', () => {
                 this._addProgress(name, true, newOwner, oldOwner);
-            }, 500);
+            }));
         }));
     }
 
     destroy() {
-        super.destroy();
-        
         clearTimeout(this.timeout);
 
         for (let i in this.bars) {
             this.bars[i].destroy();
+            delete this.bars[i];
         }
 
         this.signals.map((i) => {
             this.disconnect(i);
         });
+
+        super.destroy();
     }
 }
 
@@ -133,7 +138,7 @@ export class ProgressBar extends Slider {
         const MprisPlayerIface = loadInterfaceXML('org.mpris.MediaPlayer2.Player');
         const MprisPlayerProxy = Gio.DBusProxy.makeProxyWrapper(MprisPlayerIface);
 
-        this._playerProxy = new MprisPlayerProxy(Gio.DBus.session, this._busName, '/org/mpris/MediaPlayer2', this._onPlayerProxyReady.bind(this));
+        this._playerProxy = MprisPlayerProxy(Gio.DBus.session, this._busName, '/org/mpris/MediaPlayer2', this._onPlayerProxyReady.bind(this));
 
         const position = this.getPosition();
         this.value = position / this._length;
@@ -160,12 +165,17 @@ export class ProgressBar extends Slider {
     }
 
     _updateInfo() {
-        this._trackId = this._playerProxy.Metadata["mpris:trackid"].deepUnpack();
+        try {
+            this._trackId = this._playerProxy.Metadata["mpris:trackid"].deepUnpack();
+        } catch {
+            this._trackId = 0;
+            this.reactive = false;
+        }
         this._length = this._playerProxy.Metadata["mpris:length"].deepUnpack();
         this.timestamps[1].set_text(`${Math.floor(this._length / 60000000)}:${Math.floor((this._length / 60000000 - Math.floor(this._length / 60000000))*60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})}`);
     }
 
-    getPosition() {;
+    getPosition() {
         return this._playerProxy.get_connection().call_sync(
             this._busName,
             "/org/mpris/MediaPlayer2",
@@ -193,16 +203,16 @@ export class ProgressBar extends Slider {
         );
     }
 
-    async _onPlayerProxyReady() {
-        this._updateInfo();
+    _onPlayerProxyReady() {
         this.signals.push(this._playerProxy.connectObject('g-properties-changed', () => this._updateInfo(), this));
+        this._updateInfo();
     }
 
     _updateSettings() {
-        if (St.Settings.get().color_scheme == 0 && GLib.get_os_info("NAME").includes("Ubuntu")) {
+        if (St.Settings.get().color_scheme === 0 && GLib.get_os_info("NAME").includes("Ubuntu")) {
             this.remove_style_class_name('progress-bar');
             this.add_style_class_name('progress-bar-light');
-        } else if (St.Settings.get().color_scheme == 2) {
+        } else if (St.Settings.get().color_scheme === 2) {
             this.remove_style_class_name('progress-bar');
             this.add_style_class_name('progress-bar-light');
         } else {
@@ -213,7 +223,6 @@ export class ProgressBar extends Slider {
     }
 
     destroy() {
-        super.destroy()
         this.signals.map((i) => {
             this.disconnect(i);
         });
@@ -222,6 +231,8 @@ export class ProgressBar extends Slider {
         this._playerProxy = null;
         this.timestamps[0].destroy();
         this.timestamps[1].destroy();
+        delete this.manager.bars[this._busName];
+        super.destroy();
     }
 }
 
