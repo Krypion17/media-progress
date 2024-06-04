@@ -36,10 +36,7 @@ export class ProgressBarManager extends Slider {
                 if (owners && !newOwner && oldOwner)
                     return;
                     
-                try {
-                    if (i.get_child().get_last_child().get_child_at_index(1) instanceof ProgressBar) 
-                        return;
-                } catch {
+                if (i.get_child().get_last_child()?.get_n_children() >= 2 && i.get_child().get_last_child().get_child_at_index(1) instanceof ProgressBar) {
                     return;
                 }
 
@@ -48,25 +45,28 @@ export class ProgressBarManager extends Slider {
                 const MprisPlayerIface = loadInterfaceXML('org.mpris.MediaPlayer2.Player');
                 const MprisPlayerProxy = Gio.DBusProxy.makeProxyWrapper(MprisPlayerIface);
 
-                let playerProxy = new MprisPlayerProxy(Gio.DBus.session, name, '/org/mpris/MediaPlayer2');
-                
-                try {
-                    length = playerProxy.get_connection().call_sync(
-                        name,
-                        "/org/mpris/MediaPlayer2",
-                        "org.freedesktop.DBus.Properties",
-                        "Get",
-                        new GLib.Variant("(ss)", ["org.mpris.MediaPlayer2.Player", "Metadata"]),
-                        null,
-                        Gio.DBusCallFlags.NONE,
-                        50,
-                        null
-                    ).recursiveUnpack()[0]['mpris:length'] / 60000000;
-                    if (!length)
+                let playerProxy = new MprisPlayerProxy(Gio.DBus.session, name, '/org/mpris/MediaPlayer2', () => {
+                    try {
+                        length = playerProxy.get_connection().call_sync(
+                            name,
+                            "/org/mpris/MediaPlayer2",
+                            "org.freedesktop.DBus.Properties",
+                            "Get",
+                            new GLib.Variant("(ss)", ["org.mpris.MediaPlayer2.Player", "Metadata"]),
+                            null,
+                            Gio.DBusCallFlags.NONE,
+                            50,
+                            null
+                        ).recursiveUnpack()[0]['mpris:length'] / 60000000;
+                        if (!length) {
+                            pla
+                            playerProxy = null;
+                            return;
+                        }
+                    } catch {
                         return;
-                } catch (e) {
-                    return;
-                }
+                    }
+                });
 
                 let timestamp1 = new St.Label({
                     style_class: "progressbar-timestamp"
@@ -79,7 +79,6 @@ export class ProgressBarManager extends Slider {
 
                 let progressBar = new ProgressBar(0, this, name, [timestamp1, timestamp2]);
                 let box = new St.BoxLayout();
-                playerProxy = null;
                 timestamp2.set_text(`${Math.floor(length)}:${Math.floor((length - Math.floor(length))*60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})}`);
                 box.add_child(timestamp1);
                 box.add_child(progressBar);
@@ -154,25 +153,22 @@ export class ProgressBar extends Slider {
         this.timestamps = timestamps;
         this._updateSettings();
         this.updateSignal = St.Settings.get().connect('notify', () => this._updateSettings());
-        this.track_hover = true;
+        this._length = 1;
 
         this.signals = [];
 
-        const MprisPlayerIface = loadInterfaceXML('org.mpris.MediaPlayer2.Player');
-        const MprisPlayerProxy = Gio.DBusProxy.makeProxyWrapper(MprisPlayerIface);
-
-        this._playerProxy = MprisPlayerProxy(Gio.DBus.session, this._busName, '/org/mpris/MediaPlayer2', this._onPlayerProxyReady.bind(this));
-
-        const position = this.getProperty("Position");
-        this.value = position / this._length;
+        this._initProxy();
 
         timeout = setInterval(() => {
-            if (this._dragging || this.getProperty("PlaybackStatus") !== "Playing")
+            if (this._dragging)
                 return;
             if (!this) {
-                clearInterval(timeout);
+                this.destroy();
                 return;
             }
+            if (!this.length)
+                this._updateInfo();
+
             let position = this.getProperty("Position");
 
             this.value = position / this._length;
@@ -188,19 +184,19 @@ export class ProgressBar extends Slider {
     }
 
     _updateInfo() {
+        if (!this._playerProxy)
+            this._initProxy();
         this._trackId = this.getProperty("Metadata")['mpris:trackid'];
         if (!this._trackId)
             this.reactive = false;
         if (this._trackId !== 0 && this.getProperty("CanSeek"))
             this.reactive = true;
-        if (!this._length)
-            this._length = this.getProperty("Metadata")['mpris:length'];
+        this._length = this.getProperty("Metadata")['mpris:length'];
         if (!this._length) {
             this.visible = false;
             this.timestamps[0].visible = false;
             this.timestamps[1].visible = false;
-        }
-        else {
+        } else {
             this.visible = true;
             this.timestamps[0].visible = true;
             this.timestamps[1].visible = true;
@@ -241,7 +237,7 @@ export class ProgressBar extends Slider {
     }
            
     _onPlayerProxyReady() {
-        this.signals.push(this._playerProxy.connectObject('g-properties-changed', () => this._updateInfo(), this));
+        this._playerProxy.connectObject('g-properties-changed', () => this._updateInfo(), this);
         this._updateInfo();
     }
 
@@ -259,10 +255,20 @@ export class ProgressBar extends Slider {
         
     }
 
+    _initProxy() {
+        try {
+            const MprisPlayerIface = loadInterfaceXML('org.mpris.MediaPlayer2.Player');
+            const MprisPlayerProxy = Gio.DBusProxy.makeProxyWrapper(MprisPlayerIface);
+
+            this._playerProxy = MprisPlayerProxy(Gio.DBus.session, this._busName, '/org/mpris/MediaPlayer2', this._onPlayerProxyReady.bind(this));
+        } catch {}
+    }
+
     destroy() {
         this.signals.map((i) => {
             this.disconnect(i);
         });
+        this._playerProxy.disconnectObject(this);
         St.Settings.get().disconnect(this.updateSignal);
         clearInterval(timeout);
         this._playerProxy = null;
