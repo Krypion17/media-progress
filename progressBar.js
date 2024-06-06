@@ -79,7 +79,10 @@ export class ProgressBarManager extends Slider {
 
                 let progressBar = new ProgressBar(0, this, name, [timestamp1, timestamp2]);
                 let box = new St.BoxLayout();
-                timestamp2.set_text(`${Math.floor(length)}:${Math.floor((length - Math.floor(length))*60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})}`);
+                let hours = Math.floor(length / 60);
+                timestamp2.set_text(`${hours > 0 ? hours + ':' : ''}${
+                    hours > 0 ? (Math.floor(length) % 60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) : (Math.floor(length) % 60)}:${
+                    Math.floor((length - Math.floor(length))*60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})}`);
                 box.add_child(timestamp1);
                 box.add_child(progressBar);
                 box.add_child(timestamp2);
@@ -173,7 +176,10 @@ export class ProgressBar extends Slider {
 
             this.value = position / this._length;
             position = position / 60000000;
-            this.timestamps[0].set_text(`${Math.floor(position)}:${Math.floor((position - Math.floor(position))*60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})}`);
+            let hours = Math.floor(position / 60);
+            this.timestamps[0].set_text(`${hours > 0 ? hours + ':' : ''}${
+                hours > 0 ? (Math.floor(position) % 60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) : (Math.floor(position) % 60)}:${
+                Math.floor((position - Math.floor(position))*60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})}`);
         }, 1000);
 
         this.signals.push(this.connect("drag-end", () => {
@@ -201,7 +207,12 @@ export class ProgressBar extends Slider {
             this.timestamps[0].visible = true;
             this.timestamps[1].visible = true;
         }
-        this.timestamps[1].set_text(`${Math.floor(this._length / 60000000)}:${Math.floor((this._length / 60000000 - Math.floor(this._length / 60000000))*60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})}`);
+
+        let position = this._length / 60000000;
+        let hours = Math.floor(position / 60);
+        this.timestamps[1].set_text(`${hours > 0 ? hours + ':' : ''}${
+            hours > 0 ? (Math.floor(position) % 60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) : (Math.floor(position) % 60)}:${
+            Math.floor((position - Math.floor(position))*60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})}`);
     }
 
     getProperty(prop) {
