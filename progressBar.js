@@ -40,14 +40,14 @@ export class ProgressBarManager extends Slider {
                     return;
                 }
 
-                let length;
+                let seconds = 0;
 
                 const MprisPlayerIface = loadInterfaceXML('org.mpris.MediaPlayer2.Player');
                 const MprisPlayerProxy = Gio.DBusProxy.makeProxyWrapper(MprisPlayerIface);
 
                 let playerProxy = new MprisPlayerProxy(Gio.DBus.session, name, '/org/mpris/MediaPlayer2', () => {
                     try {
-                        length = playerProxy.get_connection().call_sync(
+                        seconds = playerProxy.get_connection().call_sync(
                             name,
                             "/org/mpris/MediaPlayer2",
                             "org.freedesktop.DBus.Properties",
@@ -57,17 +57,11 @@ export class ProgressBarManager extends Slider {
                             Gio.DBusCallFlags.NONE,
                             50,
                             null
-                        ).recursiveUnpack()[0]['mpris:length'] / 60000000;
-                        if (!length) {
-                            pla
-                            playerProxy = null;
-                            return;
-                        }
+                        ).recursiveUnpack()[0]['mpris:length'] / 1000000;
                     } catch {
                         return;
                     }
                 });
-
                 let timestamp1 = new St.Label({
                     style_class: "progressbar-timestamp"
                 });
@@ -79,10 +73,9 @@ export class ProgressBarManager extends Slider {
 
                 let progressBar = new ProgressBar(0, this, name, [timestamp1, timestamp2]);
                 let box = new St.BoxLayout();
-                let hours = Math.floor(length / 60);
-                timestamp2.set_text(`${hours > 0 ? hours + ':' : ''}${
-                    hours > 0 ? (Math.floor(length) % 60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) : (Math.floor(length) % 60)}:${
-                    Math.floor((length - Math.floor(length))*60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})}`);
+                let length = new Date(0);
+                length.setSeconds(seconds);
+                timestamp2.set_text(length.toISOString().substring(11,19).replace(/^0(?:0:0?)?/, ''));
                 box.add_child(timestamp1);
                 box.add_child(progressBar);
                 box.add_child(timestamp2);
@@ -175,11 +168,10 @@ export class ProgressBar extends Slider {
             let position = this.getProperty("Position");
 
             this.value = position / this._length;
-            position = position / 60000000;
-            let hours = Math.floor(position / 60);
-            this.timestamps[0].set_text(`${hours > 0 ? hours + ':' : ''}${
-                hours > 0 ? (Math.floor(position) % 60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) : (Math.floor(position) % 60)}:${
-                Math.floor((position - Math.floor(position))*60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})}`);
+            position = position / 1000000;
+            let text = new Date(0);
+            text.setUTCSeconds(position);
+            this.timestamps[0].set_text(text.toISOString().substring(11,19).replace(/^0(?:0:0?)?/, ''));
         }, 1000);
 
         this.signals.push(this.connect("drag-end", () => {
@@ -202,17 +194,17 @@ export class ProgressBar extends Slider {
             this.visible = false;
             this.timestamps[0].visible = false;
             this.timestamps[1].visible = false;
+            return;
         } else {
             this.visible = true;
             this.timestamps[0].visible = true;
             this.timestamps[1].visible = true;
         }
 
-        let position = this._length / 60000000;
-        let hours = Math.floor(position / 60);
-        this.timestamps[1].set_text(`${hours > 0 ? hours + ':' : ''}${
-            hours > 0 ? (Math.floor(position) % 60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}) : (Math.floor(position) % 60)}:${
-            Math.floor((position - Math.floor(position))*60).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false})}`);
+        let position = this._length / 1000000;
+        let text = new Date(0);
+        text.setUTCSeconds(position);
+        this.timestamps[1].set_text(text.toISOString().substring(11,19).replace(/^0(?:0:0?)?/, ''));
     }
 
     getProperty(prop) {
