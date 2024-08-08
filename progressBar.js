@@ -81,15 +81,6 @@ export class ProgressBarManager extends Slider {
                 box.add_child(timestamp2);
                 i.get_child().add_child(box);
                 this.bars[name] = progressBar;
-
-                this.signals.push(i._player.connect('closed', (() => {
-                    if (timeout)
-                        clearInterval(timeout);
-                    if (!this.bars[name])
-                        return;
-                    this.bars[name].destroy();
-                    delete this.bars[name];
-                })));
             }
         }
     }
