@@ -165,11 +165,14 @@ export class ProgressBar extends Slider {
             this.timestamps[0].set_text(text.toISOString().substring(11,19).replace(/^0(?:0:0?)?/, ''));
         }, 1000);
 
-        this.signals.push(this.connect("drag-end", () => {
-            if (this._dragging)
-                return;
-            this.setPosition(this.value * this._length);
-        }));
+        this.signals.push(
+            this.connect("drag-end", () => {
+                if (this._dragging)
+                    return;
+                this.setPosition(this.value * this._length);
+            }),
+            this.connect("destroy", this._onDestroy.bind(this))
+        );
     }
 
     _updateInfo() {
@@ -258,7 +261,7 @@ export class ProgressBar extends Slider {
         } catch {}
     }
 
-    destroy() {
+    _onDestroy() {
         this.signals.map((i) => {
             this.disconnect(i);
         });
@@ -270,7 +273,6 @@ export class ProgressBar extends Slider {
         this.timestamps[1].destroy();
         if (this.manager.bars[this._busName])
             delete this.manager.bars[this._busName];
-        super.destroy();
     }
 }
 
