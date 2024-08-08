@@ -147,10 +147,6 @@ export class ProgressBar extends Slider {
         this.interval = setInterval(() => {
             if (this._dragging)
                 return;
-            if (!this) {
-                this.destroy();
-                return;
-            }
             if (!this.length)
                 this._updateInfo();
 
