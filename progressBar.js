@@ -8,8 +8,6 @@ import {Slider} from 'resource:///org/gnome/shell/ui/slider.js';
 
 import { loadInterfaceXML } from 'resource:///org/gnome/shell/misc/fileUtils.js';
 
-let timeout;
-
 export class ProgressBarManager extends Slider {
     _init(mediaSection) {
         super._init(0);
@@ -146,7 +144,7 @@ export class ProgressBar extends Slider {
 
         this._initProxy();
 
-        timeout = setInterval(() => {
+        this.interval = setInterval(() => {
             if (this._dragging)
                 return;
             if (!this) {
@@ -267,7 +265,7 @@ export class ProgressBar extends Slider {
         });
         this._playerProxy.disconnectObject(this);
         St.Settings.get().disconnect(this.updateSignal);
-        clearInterval(timeout);
+        clearInterval(this.interval);
         this._playerProxy = null;
         this.timestamps[0].destroy();
         this.timestamps[1].destroy();
