@@ -263,8 +263,6 @@ export class ProgressBar extends Slider {
         St.Settings.get().disconnect(this.updateSignal);
         clearInterval(this.interval);
         this._playerProxy = null;
-        this.timestamps[0].destroy();
-        this.timestamps[1].destroy();
         if (this.manager.bars[this._busName])
             delete this.manager.bars[this._busName];
     }
