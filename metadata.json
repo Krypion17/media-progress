@@ -3,7 +3,6 @@
   "description": "Progress Bar for the GNOME Media Notification",
   "name": "Media Progress",
   "shell-version": [
-    "46",
     "47"
   ],
   "url": "https://github.com/Krypion17/media-progress",
