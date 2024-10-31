@@ -91,17 +91,17 @@ export class ProgressBarManager extends Slider {
 
             this._addProgress(name, false);
         });
-        this.signals.push(this._dbusProxy.connectSignal("NameOwnerChanged", (pproxy, sender, [name, oldOwner, newOwner]) => {
+        this.dbusSignal = this._dbusProxy.connectSignal("NameOwnerChanged", (pproxy, sender, [name, oldOwner, newOwner]) => {
             if (!name.startsWith('org.mpris.MediaPlayer2.'))
                 return;
-            this.signals.push(this._mediaSection._players.get(name).connect('changed', () => {
+            this.signals[name] = this._mediaSection._players.get(name).connect('changed', () => {
                 this._addProgress(name, true, newOwner, oldOwner);
-            }));
+            });
 
             this.timeout = setTimeout(() => {
                 this._addProgress(name, true, newOwner, oldOwner);
             }, 500);
-        }));
+        });
     }
 
     destroy() {
@@ -114,9 +114,11 @@ export class ProgressBarManager extends Slider {
             delete this.bars[i];
         }
 
-        this.signals.map((i) => {
-            this.disconnect(i);
-        });
+        for (let name of this.signals) {
+            this._mediaSection._players.get(name).disconnect(this.signals[name]);
+        }
+
+        this._dbusProxy.disconnectSignal(this.dbusSignal)
 
         for (let i of this._mediaSection._messages) {
             try {
