@@ -3,9 +3,9 @@
   "description": "Progress Bar for the GNOME Media Notification",
   "name": "Media Progress",
   "shell-version": [
-    "46"
+    "47"
   ],
   "url": "https://github.com/Krypion17/media-progress",
   "uuid": "media-progress@krypion17",
-  "version": 15
+  "version": 16
 }
