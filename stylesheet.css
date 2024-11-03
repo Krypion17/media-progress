@@ -2,14 +2,29 @@
 
 .progress-bar {
     -barlevel-height: 4px;
-    -barlevel-active-background-color: #fff;
     -slider-handle-radius: 0px;
-    margin: 5px 5px 10px;
+    -barlevel-active-background-color: white;
+    margin: 10px 5px 10px;
     padding: 0;
+    color: white;
 }
 
+.progress-bar-light {
+    -barlevel-height: 4px;
+    -slider-handle-radius: 0px;
+    -barlevel-active-background-color: #282828;
+    margin: 10px 5px 10px;
+    padding: 0;
+    color: #282828;
+}
+
+.progress-bar-light:hover {
+    -slider-handle-radius: 5px;
+    -slider-handle-border-width: 0px;
+    height: 14px;
+    margin: 0 5px 5px;
+}
 .progress-bar:hover {
-    color: white;
     -slider-handle-radius: 5px;
     -slider-handle-border-width: 0px;
     height: 14px;
@@ -18,5 +33,6 @@
 
 .progressbar-timestamp {
     font-family: Noto Sans;
-    margin: 0 15px 10px;
+    margin: 5px 10px 5px;
 }
+

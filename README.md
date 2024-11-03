@@ -1,16 +1,22 @@
 # Progress Bar for the GNOME Media Notification
 *This is a debug branch with a bunch of debug logs just for my convenience, not to be used.*
 
-![image, listen to hot air balloon btw](pics/image.png)
+<div align="center">
+    <br />
+    <img src="pics/icon.svg" width="200"/>
+    <h1>Media Progress</h1>
+    <h3>Progress Bar for the GNOME Media Notification</h3>
+    <img src="pics/image.png">
+</div>
 
 ## Installation
-I might upload to gnome-extensions when I'm ready with it, but for now heres the installation steps.
+Get it from the GNOME extensions website
 
+[<img height=100 src="https://github.com/andyholmes/gnome-shell-extensions-badge/raw/master/get-it-on-ego.svg">](https://extensions.gnome.org/extension/6940/media-progress/)
+
+Or install it yourself
 ```bash
-cd ~/.local/share/gnome-shell/extensions/
-git clone https://github.com/Krypion17/media-progress && mv media-progress media-progress@krypion17
+git clone https://github.com/Krypion17/media-progress
+make
 ```
 Then re-login and enable from the extension app, if not enabled.
-
-## TODO
-- Maybe a settings menu to disable timestamps.
