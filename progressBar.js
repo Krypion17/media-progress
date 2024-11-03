@@ -8,8 +8,6 @@ import {Slider} from 'resource:///org/gnome/shell/ui/slider.js';
 
 import { loadInterfaceXML } from 'resource:///org/gnome/shell/misc/fileUtils.js';
 
-let timeout;
-
 export class ProgressBarManager extends Slider {
     _init(mediaSection) {
         super._init(0);
@@ -81,15 +79,6 @@ export class ProgressBarManager extends Slider {
                 box.add_child(timestamp2);
                 i.get_child().add_child(box);
                 this.bars[name] = progressBar;
-
-                this.signals.push(i._player.connect('closed', (() => {
-                    if (timeout)
-                        clearInterval(timeout);
-                    if (!this.bars[name])
-                        return;
-                    this.bars[name].destroy();
-                    delete this.bars[name];
-                })));
             }
         }
     }
@@ -102,17 +91,17 @@ export class ProgressBarManager extends Slider {
 
             this._addProgress(name, false);
         });
-        this.signals.push(this._dbusProxy.connectSignal("NameOwnerChanged", (pproxy, sender, [name, oldOwner, newOwner]) => {
+        this.dbusSignal = this._dbusProxy.connectSignal("NameOwnerChanged", (pproxy, sender, [name, oldOwner, newOwner]) => {
             if (!name.startsWith('org.mpris.MediaPlayer2.'))
                 return;
-            this.signals.push(this._mediaSection._players.get(name).connect('changed', () => {
+            this.signals[name] = this._mediaSection._players.get(name).connect('changed', () => {
                 this._addProgress(name, true, newOwner, oldOwner);
-            }));
+            });
 
             this.timeout = setTimeout(() => {
                 this._addProgress(name, true, newOwner, oldOwner);
             }, 500);
-        }));
+        });
     }
 
     destroy() {
@@ -121,20 +110,15 @@ export class ProgressBarManager extends Slider {
         for (let i in this.bars) {
             if (!this.bars[i])
                 continue;
-            this.bars[i].destroy();
+            this.bars[i].get_parent().destroy();
             delete this.bars[i];
         }
 
-        this.signals.map((i) => {
-            this.disconnect(i);
-        });
-
-        for (let i of this._mediaSection._messages) {
-            try {
-                if (i.get_child().get_last_child().get_child_at_index(1) instanceof ProgressBar)
-                    i.get_child().get_last_child().get_child_at_index(1).destroy();
-            } catch {}
+        for (let name of this.signals) {
+            this._mediaSection._players.get(name).disconnect(this.signals[name]);
         }
+
+        this._dbusProxy.disconnectSignal(this.dbusSignal)
 
         super.destroy();
     }
@@ -155,13 +139,9 @@ export class ProgressBar extends Slider {
 
         this._initProxy();
 
-        timeout = setInterval(() => {
+        this.interval = setInterval(() => {
             if (this._dragging)
                 return;
-            if (!this) {
-                this.destroy();
-                return;
-            }
             if (!this.length)
                 this._updateInfo();
 
@@ -174,11 +154,14 @@ export class ProgressBar extends Slider {
             this.timestamps[0].set_text(text.toISOString().substring(11,19).replace(/^0(?:0:0?)?/, ''));
         }, 1000);
 
-        this.signals.push(this.connect("drag-end", () => {
-            if (this._dragging)
-                return;
-            this.setPosition(this.value * this._length);
-        }));
+        this.signals.push(
+            this.connect("drag-end", () => {
+                if (this._dragging)
+                    return;
+                this.setPosition(this.value * this._length);
+            }),
+            this.connect("destroy", this._onDestroy.bind(this))
+        );
     }
 
     _updateInfo() {
@@ -267,19 +250,16 @@ export class ProgressBar extends Slider {
         } catch {}
     }
 
-    destroy() {
+    _onDestroy() {
         this.signals.map((i) => {
             this.disconnect(i);
         });
         this._playerProxy.disconnectObject(this);
         St.Settings.get().disconnect(this.updateSignal);
-        clearInterval(timeout);
+        clearInterval(this.interval);
         this._playerProxy = null;
-        this.timestamps[0].destroy();
-        this.timestamps[1].destroy();
         if (this.manager.bars[this._busName])
             delete this.manager.bars[this._busName];
-        super.destroy();
     }
 }
 

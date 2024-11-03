@@ -4,7 +4,7 @@
     -barlevel-height: 4px;
     -slider-handle-radius: 0px;
     -barlevel-active-background-color: white;
-    margin: 5px 5px 10px;
+    margin: 10px 5px 10px;
     padding: 0;
     color: white;
 }
@@ -13,7 +13,7 @@
     -barlevel-height: 4px;
     -slider-handle-radius: 0px;
     -barlevel-active-background-color: #282828;
-    margin: 5px 5px 10px;
+    margin: 10px 5px 10px;
     padding: 0;
     color: #282828;
 }
