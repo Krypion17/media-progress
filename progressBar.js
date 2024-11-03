@@ -120,13 +120,6 @@ export class ProgressBarManager extends Slider {
 
         this._dbusProxy.disconnectSignal(this.dbusSignal)
 
-        /*for (let i of this._mediaSection._messages) {
-            try {
-                if (i.get_child().get_last_child().get_child_at_index(1) instanceof ProgressBar)
-                    i.get_child().get_last_child().get_child_at_index(1).destroy();
-            } catch {}
-        }*/
-
         super.destroy();
     }
 }
