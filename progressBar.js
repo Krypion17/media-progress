@@ -94,9 +94,13 @@ export class ProgressBarManager extends Slider {
         this.dbusSignal = this._dbusProxy.connectSignal("NameOwnerChanged", (pproxy, sender, [name, oldOwner, newOwner]) => {
             if (!name.startsWith('org.mpris.MediaPlayer2.'))
                 return;
-            this.signals[name] = this._messageView._mediaSource._players.get(name).connect('changed', () => {
-                this._addProgress(name, true, newOwner, oldOwner);
-            });
+            for (let i in this._messageView._mediaSource.players) {
+                if (i._busName == name) {
+                    this.signals[name] = i.connect('changed', () => {
+                        this._addProgress(name, true, newOwner, oldOwner);
+                    });
+                }
+            }
 
             this.timeout = setTimeout(() => {
                 this._addProgress(name, true, newOwner, oldOwner);
@@ -114,8 +118,8 @@ export class ProgressBarManager extends Slider {
             delete this.bars[i];
         }
 
-        for (let name of this.signals) {
-            this._messageView._mediaSource._players.get(name).disconnect(this.signals[name]);
+        for (let i in this._messageView._mediaSource.players) {
+            i.disconnect(this.signals[i._busName]);
         }
 
         this._dbusProxy.disconnectSignal(this.dbusSignal)
