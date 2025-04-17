@@ -2,7 +2,7 @@
   "description": "Progress Bar for the GNOME Media Notification",
   "name": "Media Progress Dev",
   "shell-version": [
-    "47"
+    "48"
   ],
   "url": "https://github.com/Krypion17/media-progress",
   "uuid": "media-progress-dev@krypion17",

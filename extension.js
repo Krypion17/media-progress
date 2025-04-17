@@ -8,13 +8,14 @@ export default class mediaProgress extends Extension {
     }
 
     enable() {
-        this.media_section = Main.panel.statusArea.dateMenu._messageList._mediaSection;
-        this.progressBarManager = new ProgressBarManager(this.media_section);
+        this.message_view = Main.panel.statusArea.dateMenu._messageList._messageView;
+        log(this.message_view);
+        this.progressBarManager = new ProgressBarManager(this.message_view);
     }
 
     disable() {
         this.progressBarManager?.destroy();
         this.progressBarManager = null;
-        this.media_section = null;
+        this.message_view = null;
     }
 }

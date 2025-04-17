@@ -9,7 +9,7 @@ import {Slider} from 'resource:///org/gnome/shell/ui/slider.js';
 import { loadInterfaceXML } from 'resource:///org/gnome/shell/misc/fileUtils.js';
 
 export class ProgressBarManager extends Slider {
-    _init(mediaSection) {
+    _init(messageView) {
         super._init(0);
         
         const DBusIface = loadInterfaceXML('org.freedesktop.DBus');
@@ -21,7 +21,7 @@ export class ProgressBarManager extends Slider {
                              this._onProxyReady.bind(this));
 
 
-        this._mediaSection = mediaSection;
+        this._messageView = messageView;
 
         
         this.signals = [];
@@ -29,7 +29,7 @@ export class ProgressBarManager extends Slider {
     }
 
     _addProgress(name, owners, newOwner, oldOwner) {
-        for (let i of this._mediaSection._messages) {
+        for (let i of this._messageView.messages) {
             if (i._player._busName === name) {
                 if (owners && !newOwner && oldOwner)
                     return;
@@ -94,7 +94,7 @@ export class ProgressBarManager extends Slider {
         this.dbusSignal = this._dbusProxy.connectSignal("NameOwnerChanged", (pproxy, sender, [name, oldOwner, newOwner]) => {
             if (!name.startsWith('org.mpris.MediaPlayer2.'))
                 return;
-            this.signals[name] = this._mediaSection._players.get(name).connect('changed', () => {
+            this.signals[name] = this._messageView._mediaSource._players.get(name).connect('changed', () => {
                 this._addProgress(name, true, newOwner, oldOwner);
             });
 
@@ -115,7 +115,7 @@ export class ProgressBarManager extends Slider {
         }
 
         for (let name of this.signals) {
-            this._mediaSection._players.get(name).disconnect(this.signals[name]);
+            this._messageView._mediaSource._players.get(name).disconnect(this.signals[name]);
         }
 
         this._dbusProxy.disconnectSignal(this.dbusSignal)
