@@ -1,5 +1,4 @@
 # Progress Bar for the GNOME Media Notification
-*This is a debug branch with a bunch of dev and testing features just for my convenience, not to be used.*
 
 <div align="center">
     <br />
