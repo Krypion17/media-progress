@@ -22,13 +22,13 @@
     -slider-handle-radius: 5px;
     -slider-handle-border-width: 0px;
     height: 14px;
-    margin: 0 5px 5px;
+    margin: 0 5px 0px;
 }
 .progress-bar:hover {
     -slider-handle-radius: 5px;
     -slider-handle-border-width: 0px;
     height: 14px;
-    margin: 0 5px 5px;
+    margin: 0 5px 0px;
 }
 
 .progressbar-timestamp {
