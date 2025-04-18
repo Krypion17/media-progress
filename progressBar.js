@@ -119,7 +119,8 @@ export class ProgressBarManager extends Slider {
         }
 
         for (let i in this._messageView._mediaSource.players) {
-            i.disconnect(this.signals[i._busName]);
+            if (i._busName in this.signals)
+                i.disconnect(this.signals[i._busName]);
         }
 
         this._dbusProxy.disconnectSignal(this.dbusSignal)
