@@ -32,7 +32,7 @@
 }
 
 .progressbar-timestamp {
+    font-feature-settings: "tnum";
     font-size: 14px;
     margin: 5px 10px 5px;
 }
-
