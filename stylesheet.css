@@ -2,37 +2,37 @@
 
 .progress-bar {
     -barlevel-height: 4px;
-    -slider-handle-radius: 0px;
+    -slider-handle-radius: 0;
     -barlevel-active-background-color: white;
-    margin: 10px 5px 10px;
+    margin: 12px 4px;
     padding: 0;
     color: white;
 }
 
 .progress-bar-light {
     -barlevel-height: 4px;
-    -slider-handle-radius: 0px;
+    -slider-handle-radius: 0;
     -barlevel-active-background-color: #282828;
-    margin: 10px 5px 10px;
+    margin: 12px 4px;
     padding: 0;
     color: #282828;
 }
 
 .progress-bar-light:hover {
-    -slider-handle-radius: 5px;
-    -slider-handle-border-width: 0px;
+    -slider-handle-radius: 6px;
+    -slider-handle-border-width: 0;
+    margin: 0 4px;
     height: 14px;
-    margin: 0 5px 0px;
 }
 .progress-bar:hover {
-    -slider-handle-radius: 5px;
-    -slider-handle-border-width: 0px;
+    -slider-handle-radius: 6px;
+    -slider-handle-border-width: 0;
+    margin: 0 4px;
     height: 14px;
-    margin: 0 5px 0px;
 }
 
 .progressbar-timestamp {
+    margin: 6px;
     font-size: 14px;
-    margin: 5px 10px 5px;
+    font-feature-settings: "tnum";
 }
-
