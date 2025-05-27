@@ -147,12 +147,14 @@ export class ProgressBar extends Slider {
         this.interval = setInterval(() => {
             if (this._dragging)
                 return;
-            if (this.getProperty("PlaybackStatus") !== "Playing")
-                return;
             if (!this.length)
                 this._updateInfo();
 
-            let position = this.getProperty("Position");
+            let position;
+            if (this.getProperty("PlaybackStatus") === "Playing")
+                position = this.getProperty("Position");
+            else
+                position = this.value * this._length;
 
             this.value = position / this._length;
             position = position / 1000000;
