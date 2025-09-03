@@ -160,7 +160,9 @@ export class ProgressBar extends Slider {
             position = position / 1000000;
             let text = new Date(0);
             text.setUTCSeconds(position);
-            this.timestamps[0].set_text(text.toISOString().substring(11,19).replace(/^0(?:0:0?)?/, ''));
+            try {
+                this.timestamps[0].set_text(text.toISOString().substring(11,19).replace(/^0(?:0:0?)?/, ''));
+            } catch {}
         }, 1000);
 
         this.signals.push(
@@ -237,6 +239,11 @@ export class ProgressBar extends Slider {
     }
 
     _updateSettings() {
+        if (GLib.get_os_info("NAME").includes("Ubuntu"))
+            this.add_style_class_name("progress-bar-ubuntu");
+        else
+            this.remove_style_class_name("progress-bar-ubuntu");
+
         if (St.Settings.get().color_scheme === 0 && GLib.get_os_info("NAME").includes("Ubuntu")) {
             this.remove_style_class_name('progress-bar');
             this.add_style_class_name('progress-bar-light');
@@ -247,7 +254,6 @@ export class ProgressBar extends Slider {
             this.remove_style_class_name('progress-bar-light');
             this.add_style_class_name('progress-bar');
         }
-        
     }
 
     _initProxy() {

@@ -31,6 +31,10 @@
     height: 14px;
 }
 
+.progress-bar-ubuntu {
+    margin: 2px 5px 0 !important;
+}
+
 .progressbar-timestamp {
     margin: 6px;
     font-size: 14px;
