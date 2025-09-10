@@ -198,7 +198,9 @@ export class ProgressBar extends Slider {
         let position = this._length / 1000000;
         let text = new Date(0);
         text.setUTCSeconds(position);
-        this.timestamps[1].set_text(text.toISOString().substring(11,19).replace(/^0(?:0:0?)?/, ''));
+        try {
+            this.timestamps[1].set_text(text.toISOString().substring(11,19).replace(/^0(?:0:0?)?/, ''));
+        } catch {}
     }
 
     getProperty(prop) {
