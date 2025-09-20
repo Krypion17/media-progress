@@ -24,7 +24,7 @@ export class ProgressBarManager extends Slider {
         this._messageView = messageView;
 
         
-        this.signals = [];
+        this.signals = {};
         this.bars = {};
     }
 
@@ -94,9 +94,9 @@ export class ProgressBarManager extends Slider {
         this.dbusSignal = this._dbusProxy.connectSignal("NameOwnerChanged", (pproxy, sender, [name, oldOwner, newOwner]) => {
             if (!name.startsWith('org.mpris.MediaPlayer2.'))
                 return;
-            for (let i in this._messageView._mediaSource.players) {
-                if (i._busName == name) {
-                    this.signals[name] = i.connect('changed', () => {
+            for (const player of this._messageView._mediaSource.players) {
+                if (player._busName == name) {
+                    this.signals[name] = player.connect('changed', () => {
                         this._addProgress(name, true, newOwner, oldOwner);
                     });
                 }
@@ -118,12 +118,18 @@ export class ProgressBarManager extends Slider {
             delete this.bars[i];
         }
 
-        for (let i in this._messageView._mediaSource.players) {
-            if (i._busName in this.signals)
-                i.disconnect(this.signals[i._busName]);
+        for (const player of this._messageView._mediaSource.players) {
+            const _id = this.signals[player._busName];
+            if (_id) {
+                try { player.disconnect(_id); } catch (e) {}
+                delete this.signals[player._busName];
+            }
         }
 
-        this._dbusProxy.disconnectSignal(this.dbusSignal)
+        if (this.dbusSignal) {
+            try { this._dbusProxy.disconnectSignal(this.dbusSignal); } catch (e) {}
+            this.dbusSignal = null;
+        }
 
         super.destroy();
     }
@@ -272,7 +278,7 @@ export class ProgressBar extends Slider {
             this.disconnect(i);
         });
         this._playerProxy.disconnectObject(this);
-        St.Settings.get().disconnect(this.updateSignal);
+        if (this.updateSignal) { try { St.Settings.get().disconnect(this.updateSignal); } catch (e) {} this.updateSignal = null; }
         clearInterval(this.interval);
         this._playerProxy = null;
         if (this.manager.bars[this._busName])
