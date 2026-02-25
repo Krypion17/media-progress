@@ -44,16 +44,16 @@ export default class mediaProgress extends Extension {
     disable() {
         // unlock-dialog session mode use required to add progress bar to lockscreen media message 
 
+        if (this._sessionId) {
+            Main.sessionMode.disconnect(this._sessionId);
+            this._sessionId = null;
+        }
+
         this.progressBarManager?.destroy();
         this.unlockManager?.destroy();
         this.progressBarManager = null;
         this.unlockManager = null;
         this.message_view = null;
         this.notifBox = null;
-
-        if (this._sessionId) {
-            Main.sessionMode.disconnect(this._sessionId);
-            this._sessionId = null;
-        }
     }
 }
