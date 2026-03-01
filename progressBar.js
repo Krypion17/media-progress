@@ -86,36 +86,41 @@ export class ProgressBarManager extends Slider {
     }
 
     _addProgress(name, owners, newOwner, oldOwner) {
-        for (const message of this._messages) {
-            if (message?._player?._busName !== name)
-                continue;
+        for (const message of this._messages ?? []) {
+            try {
+                if (message?._player?._busName !== name)
+                    continue;
 
-            if (owners && !newOwner && oldOwner)
+                if (owners && !newOwner && oldOwner)
+                    return;
+
+                const messageChild = message?.get_child?.();
+                const lastChild = messageChild?.get_last_child?.();
+                if (lastChild?.get_n_children?.() >= 2 && lastChild.get_child_at_index?.(1) instanceof ProgressBar)
+                    return;
+
+                if (!messageChild?.add_child)
+                    continue;
+
+                const timestamp1 = new St.Label({ style_class: "progressbar-timestamp" });
+                const timestamp2 = new St.Label({ style_class: "progressbar-timestamp" });
+                timestamp1.set_text(ZERO_TIMESTAMP);
+                timestamp2.set_text(ZERO_TIMESTAMP);
+
+                const progressBar = new ProgressBar(0, this, name, [timestamp1, timestamp2]);
+                const box = new St.BoxLayout();
+                box.add_child(timestamp1);
+                box.add_child(progressBar);
+                box.add_child(timestamp2);
+                messageChild.add_child(box);
+
+                this.bars[name] = progressBar;
+                void this._updateInitialLength(name, timestamp2);
                 return;
-
-            const messageChild = message.get_child();
-            const lastChild = messageChild?.get_last_child();
-            if (lastChild?.get_n_children() >= 2 && lastChild.get_child_at_index(1) instanceof ProgressBar)
+            } catch (error) {
+                _reportError(`Failed to add progress bar for ${name}`, error);
                 return;
-
-            if (!messageChild)
-                return;
-
-            const timestamp1 = new St.Label({ style_class: "progressbar-timestamp" });
-            const timestamp2 = new St.Label({ style_class: "progressbar-timestamp" });
-            timestamp1.set_text(ZERO_TIMESTAMP);
-            timestamp2.set_text(ZERO_TIMESTAMP);
-
-            const progressBar = new ProgressBar(0, this, name, [timestamp1, timestamp2]);
-            const box = new St.BoxLayout();
-            box.add_child(timestamp1);
-            box.add_child(progressBar);
-            box.add_child(timestamp2);
-            messageChild.add_child(box);
-
-            this.bars[name] = progressBar;
-            void this._updateInitialLength(name, timestamp2);
-            return;
+            }
         }
     }
 
@@ -177,8 +182,8 @@ export class ProgressBarManager extends Slider {
             if (!name.startsWith(MPRIS_BUS_PREFIX))
                 return;
 
-            for (const player of this._mediaSource.players) {
-                if (player._busName !== name)
+            for (const player of this._mediaSource?.players ?? []) {
+                if (!player?._busName || player._busName !== name)
                     continue;
 
                 if (this.signals[name]) {
@@ -215,7 +220,10 @@ export class ProgressBarManager extends Slider {
             delete this.bars[name];
         }
 
-        for (const player of this._mediaSource.players) {
+        for (const player of this._mediaSource?.players ?? []) {
+            if (!player?._busName)
+                continue;
+
             const signalId = this.signals[player._busName];
             if (!signalId)
                 continue;
@@ -294,6 +302,9 @@ export class ProgressBar extends Slider {
     }
 
     _setTimestampText(index, text) {
+        if (this._destroyed || !this.get_parent?.())
+            return;
+
         const label = this.timestamps?.[index];
         if (!label?.get_parent())
             return;
@@ -306,7 +317,10 @@ export class ProgressBar extends Slider {
     }
 
     _setTimestampsVisible(visible) {
-        for (const label of this.timestamps) {
+        if (this._destroyed || !this.get_parent?.())
+            return;
+
+        for (const label of this.timestamps ?? []) {
             if (label)
                 label.visible = visible;
         }
@@ -437,6 +451,9 @@ export class ProgressBar extends Slider {
     }
 
     _updateSettings() {
+        if (this._destroyed || !this.get_parent?.())
+            return;
+
         const osName = GLib.get_os_info("NAME") ?? "";
         const isUbuntu = osName.includes("Ubuntu");
         if (isUbuntu)
