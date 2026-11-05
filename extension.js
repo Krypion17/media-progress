@@ -3,12 +3,6 @@ import { ProgressBarManager as ProgressBarManager, ProgressBar as ProgressBar } 
 import {Extension} from 'resource:///org/gnome/shell/extensions/extension.js';
 
 export default class mediaProgress extends Extension {
-    constructor(metadata) {
-        super(metadata);
-
-        this.message_view = Main.panel.statusArea.dateMenu._messageList._messageView;
-    }
-
     _user() {
         this.unlockManager?.destroy();
         this.unlockManager = null;
@@ -36,6 +30,8 @@ export default class mediaProgress extends Extension {
     }
 
     enable() {
+        this.message_view = Main.panel.statusArea.dateMenu._messageList._messageView;
+
         this._onSessionModeChange(Main.sessionMode);
 
         this._sessionId = Main.sessionMode.connect('updated', this._onSessionModeChange.bind(this));
